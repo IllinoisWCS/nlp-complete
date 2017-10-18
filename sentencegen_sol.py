@@ -22,13 +22,13 @@ for line in hp_words:
 		else:
 			all_words[word] += 1
 ###
-# First find all unigrams in the corpus; P(w_i)
+# First find the probability of a given unigram in the corpus; P(w_i)
 ###
 unigram_probs = {}
 for word in all_words.keys():
 	''' probabilty = # occurrences/total # words '''
 	unigram_probs[word] = (all_words[word]/total_words_in_book)
-def all_unigrams(w1):
+def unigram(w1):
 	return unigram_probs[w1.lower()]
 
 ###
@@ -98,13 +98,4 @@ def weighted_choice(second_word_options):
 		current_weight += weight
 
 get_sentence(start_word, 15)
-
-
-
-
-
-
-
-
-
 
