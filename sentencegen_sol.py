@@ -30,7 +30,7 @@ for line in hp_words:
 ###
 unigram_probs = {}
 
-def get_all_unigrams:
+def get_all_unigrams():
     for word in unique_words:
         # probabilty = # occurrences/total # words
         unigram_probs[word] = (unique_words[word]/total_words_in_book)
@@ -58,10 +58,10 @@ def get_all_bigrams():
             bigram_counts[key] = 1
 
 get_all_bigrams()
-bigram_counts = sorted(bigram_counts.items(), key=lambda pair: -pair[1])
+bigram_counts_list = sorted(bigram_counts.items(), key=lambda pair: -pair[1])
 
 # Get 20 most popular bigrams
-print(bigram_counts[:20])
+print(bigram_counts_list[:20])
 
 ###
 # Find the probability of a specific bigram in the corpus; P(w_i | w_j)
@@ -71,7 +71,8 @@ print(bigram_counts[:20])
 def get_bigram_1(w1, w2):
     w1 = w1.lower()
     w2 = w2.lower()
-    return bigram_counts[(w1, w2)]/unique_words[w1]
+    w1_and_w2 = (w1, w2)
+    return bigram_counts[w1_and_w2]/unique_words[w1]
 
 # Method 2: doesn't use bigram_counts
 def get_bigram_2(w1, w2):
@@ -106,7 +107,7 @@ start_word = unique_words[idx]
 def get_sentence(word, l=20):
     for i in range(l):
         print(word, " ", end="")
-        second_word_options = [e for e in bigram_counts if e[0][0] == word]
+        second_word_options = [e for e in bigram_counts_list if e[0][0] == word]
         if not second_word_options:
             break
         word = weighted_choice(second_word_options)[1]
