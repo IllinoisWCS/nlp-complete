@@ -6,30 +6,40 @@ hp_text = requests.get("http://www.glozman.com/TextPages/Harry%20Potter%201%20-%
 
 ''' to print the whole corpus, run "print hp_text.text" '''
 
-all_words = {}
+unique_words = {}
 text = hp_text.text
+
+# Remove punctation from text
 translator = str.maketrans('', '', string.punctuation)
 text = text.translate(translator)
-
+# hp_words is a list of each word in the text
+# (in order of appearance, duplicates included)
 hp_words = [word.replace('"', '') for word in text.split()]
-total_words_in_book = 0
+total_words_in_book = len(hp_words)
+
+# Get the number of times of each word in the text appears
 for line in hp_words:
     for word in line.split():
         word = word.lower()
-        total_words_in_book += 1
-        if word not in all_words:
-            all_words[word] = 1
+        if word not in unique_words:
+            unique_words[word] = 1
         else:
-            all_words[word] += 1
+            unique_words[word] += 1
 ###
 # First find the probability of a given unigram in the corpus; P(w_i)
 ###
 unigram_probs = {}
-for word in all_words.keys():
-    ''' probabilty = # occurrences/total # words '''
-    unigram_probs[word] = (all_words[word]/total_words_in_book)
+
+def get_all_unigrams:
+    for word in unique_words:
+        # probabilty = # occurrences/total # words
+        unigram_probs[word] = (unique_words[word]/total_words_in_book)
+
 def unigram(w1):
     return unigram_probs[w1.lower()]
+
+get_all_unigrams()
+print(unigram("Harry"))
 
 ###
 # Now find all bigrams in the corpus and order them from most popular
@@ -37,51 +47,66 @@ def unigram(w1):
 # hint: sorting based on probabilty/frequency
 ###
 
-bigram_probs = {}
+bigram_counts = {}
 
-def all_bigrams():
+def get_all_bigrams():
     for i in range(len(hp_words)-1):
-        key = (hp_words[i], hp_words[i+1])
-        if key in bigram_probs.keys():
-            bigram_probs[key] += 1
+        key = (hp_words[i].lower(), hp_words[i+1].lower())
+        if key in bigram_counts:
+            bigram_counts[key] += 1
         else:
-            bigram_probs[key] = 1
-all_bigrams()
-bigram_probs = sorted(bigram_probs.items(), key=lambda pair: -pair[1])
+            bigram_counts[key] = 1
 
-# get 20 most popular bigrams
-print(bigram_probs[:20])
+get_all_bigrams()
+bigram_counts = sorted(bigram_counts.items(), key=lambda pair: -pair[1])
+
+# Get 20 most popular bigrams
+print(bigram_counts[:20])
 
 ###
 # Find the probability of a specific bigram in the corpus; P(w_i | w_j)
 ###
 
-def get_bigram(w1, w2):
+# Method 1: uses the bigram_counts dictionary
+def get_bigram_1(w1, w2):
+    w1 = w1.lower()
+    w2 = w2.lower()
+    return bigram_counts[(w1, w2)]/unique_words[w1]
+
+# Method 2: doesn't use bigram_counts
+def get_bigram_2(w1, w2):
     w1 = w1.lower()
     w2 = w2.lower()
     w1_and_w2 = w1 + " " + w2
+
+    # count stores the number of times the substring
+    # w1_and_w2 appears in the text
     count = text.lower().count(w1_and_w2)
-    return count/all_words[w1]
-# print(get_bigram("sobbed", "Hagrid"))
+    return count/unique_words[w1]
+
+# Check equality
+
+print("v1: ", get_bigram_1("sobbed", "hagrid"))
+print("v2: ", get_bigram_2("sobbed", "Hagrid"))
 
 ###
 # Sentence prediction/generation
 ###
 
 # randomly generate the first word of your sentence
-unique_words = [key for key in all_words.keys()]
+unique_words = [key for key in unique_words.keys()]
 idx = random.randrange(0, len(unique_words), 1)
 start_word = unique_words[idx]
 
 
-# generate a sentence given a word and a length of the sentence
-# hint: define a function which chooses the next word in your sentence
+# Generate a sentence given a word and a length of the sentence
+# Hint: define a function which chooses the next word in your sentence
 #       based on weighted probabilites of bigrams
 
 def get_sentence(word, l=20):
     for i in range(l):
         print(word, " ", end="")
-        second_word_options = [e for e in bigram_probs if e[0][0] == word]
+        second_word_options = [e for e in bigram_counts if e[0][0] == word]
         if not second_word_options:
             break
         word = weighted_choice(second_word_options)[1]
@@ -98,4 +123,3 @@ def weighted_choice(second_word_options):
         current_weight += weight
 
 get_sentence(start_word, 15)
-
